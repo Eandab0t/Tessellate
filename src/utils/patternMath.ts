@@ -258,12 +258,65 @@ export function calculatePatternLayout(
       });
     }
 
-    // Toroidal collision relaxation (lighter: 25 iter, early exit on stasis)
+
+    // Spatial-hash collision avoidance (primary instances only)
     if (settings.collisionAvoidance && primaryInstances.length > 1) {
       const maxIter = 25;
-      for (let step = 0; step < maxIter; step++) {
+
+      // Compute average radius for grid cell sizing
+      let totalR = 0, cnt = 0;
+      for (let i = 0; i < primaryInstances.length; i++) {
+        const instA = primaryInstances[i];
+        const assetA = assetMap.get(instA.assetId);
+        if (!assetA) continue;
+        totalR += Math.max(assetA.width, assetA.height) * 0.5 * instA.scale;
+        cnt++;
+      }
+      const cellSize = (cnt > 0 ? totalR / cnt * 2 : 64) || 64;
+      // Uniform bin widths keep toroidal neighbor ranges valid at the tile seam.
+      const cellCountX = Math.max(1, Math.floor(settings.tileWidth / cellSize));
+      const cellCountY = Math.max(1, Math.floor(settings.tileHeight / cellSize));
+      const cellWidth = settings.tileWidth / cellCountX;
+      const cellHeight = settings.tileHeight / cellCountY;
+      let maxRadius = 0;
+      for (const instance of primaryInstances) {
+        const asset = assetMap.get(instance.assetId);
+        if (asset) {
+          maxRadius = Math.max(
+            maxRadius,
+            Math.max(asset.width, asset.height) * 0.5 * instance.scale
+          );
+        }
+      }
+      const maxCollisionDistance = 2 * maxRadius * settings.collisionThreshold;
+      const maxBinRangeX = Math.ceil(maxCollisionDistance / cellWidth);
+      const maxBinRangeY = Math.ceil(maxCollisionDistance / cellHeight);
+      const wrapBin = (bin: number, count: number) => ((bin % count) + count) % count;
+      const getNeighborBins = (center: number, count: number, range: number) => {
+        if (range * 2 + 1 >= count) {
+          return Array.from({ length: count }, (_, index) => index);
+        }
+        const bins: number[] = [];
+        for (let offset = -range; offset <= range; offset++) {
+          bins.push(wrapBin(center + offset, count));
+        }
+        return bins;
+      };
+
+      for (let step = 0; cnt > 0 && step < maxIter; step++) {
         const forces = new Float64Array(primaryInstances.length * 2);
         let maxMovement = 0;
+
+        // Build spatial hash grid: binKey → [instanceIndices]
+        const grid = new Map<string, number[]>();
+        for (let i = 0; i < primaryInstances.length; i++) {
+          const instI = primaryInstances[i];
+          const bx = Math.floor(instI.x / cellWidth);
+          const by = Math.floor(instI.y / cellHeight);
+          const key = bx + ',' + by;
+          if (!grid.has(key)) grid.set(key, []);
+          grid.get(key)!.push(i);
+        }
 
         for (let i = 0; i < primaryInstances.length; i++) {
           const instA = primaryInstances[i];
@@ -272,46 +325,63 @@ export function calculatePatternLayout(
 
           const rA = Math.max(assetA.width, assetA.height) * 0.5 * instA.scale;
           const i2 = i * 2;
+          const bx = Math.floor(instA.x / cellWidth);
+          const by = Math.floor(instA.y / cellHeight);
+          const pairDistance = (rA + maxRadius) * settings.collisionThreshold;
+          const rangeX = Math.min(maxBinRangeX, Math.ceil(pairDistance / cellWidth));
+          const rangeY = Math.min(maxBinRangeY, Math.ceil(pairDistance / cellHeight));
+          const neighborBinsX = getNeighborBins(bx, cellCountX, rangeX);
+          const neighborBinsY = getNeighborBins(by, cellCountY, rangeY);
 
-          for (let j = i + 1; j < primaryInstances.length; j++) {
-            const instB = primaryInstances[j];
-            const assetB = assetMap.get(instB.assetId);
-            if (!assetB) continue;
+          for (const neighborX of neighborBinsX) {
+            for (const neighborY of neighborBinsY) {
+              const key = neighborX + ',' + neighborY;
+              const neighbors = grid.get(key);
+              if (!neighbors) continue;
 
-            const rB = Math.max(assetB.width, assetB.height) * 0.5 * instB.scale;
+              for (const j of neighbors) {
+                if (j <= i) continue;
+                const instB = primaryInstances[j];
+                const assetB = assetMap.get(instB.assetId);
+                if (!assetB) continue;
 
-            let dx = instB.x - instA.x;
-            if (dx > settings.tileWidth * 0.5) dx -= settings.tileWidth;
-            else if (dx < -settings.tileWidth * 0.5) dx += settings.tileWidth;
+                const rB = Math.max(assetB.width, assetB.height) * 0.5 * instB.scale;
 
-            let dy = instB.y - instA.y;
-            if (dy > settings.tileHeight * 0.5) dy -= settings.tileHeight;
-            else if (dy < -settings.tileHeight * 0.5) dy += settings.tileHeight;
+                let dx = instB.x - instA.x;
+                if (dx > settings.tileWidth * 0.5) dx -= settings.tileWidth;
+                else if (dx < -settings.tileWidth * 0.5) dx += settings.tileWidth;
 
-            const distSq = dx * dx + dy * dy;
-            const dist = Math.sqrt(distSq) || 0.1;
-            const targetDist = (rA + rB) * settings.collisionThreshold;
+                let dy = instB.y - instA.y;
+                if (dy > settings.tileHeight * 0.5) dy -= settings.tileHeight;
+                else if (dy < -settings.tileHeight * 0.5) dy += settings.tileHeight;
 
-            if (dist < targetDist) {
-              const overlap = targetDist - dist;
-              const cooling = (maxIter - step) / maxIter;
-              const forceMag = (overlap / targetDist) * 0.5 * cooling;
+                const distSq = dx * dx + dy * dy;
+                const dist = Math.sqrt(distSq) || 0.1;
+                const targetDist = (rA + rB) * settings.collisionThreshold;
 
-              const fx = (dx / dist) * forceMag;
-              const fy = (dy / dist) * forceMag;
+                if (dist < targetDist) {
+                  const overlap = targetDist - dist;
+                  const cooling = (maxIter - step) / maxIter;
+                  const forceMag = (overlap / targetDist) * 0.5 * cooling;
 
-              forces[i2] -= fx;
-              forces[i2 + 1] -= fy;
-              const j2 = j * 2;
-              forces[j2] += fx;
-              forces[j2 + 1] += fy;
+                  const fx = (dx / dist) * forceMag;
+                  const fy = (dy / dist) * forceMag;
+
+                  forces[i2] -= fx;
+                  forces[i2 + 1] -= fy;
+                  const j2 = j * 2;
+                  forces[j2] += fx;
+                  forces[j2 + 1] += fy;
+                }
+              }
             }
           }
         }
 
+        // Apply forces with cooling and noise
         const cooling = (maxIter - step) / maxIter;
         const noiseLevel = 1.2 * cooling;
-        const snap = 0.001; // early exit threshold
+        const snap = 0.001;
 
         for (let i = 0; i < primaryInstances.length; i++) {
           const inst = primaryInstances[i];
@@ -323,9 +393,10 @@ export function calculatePatternLayout(
           if (Math.abs(fx) > snap || Math.abs(fy) > snap) maxMovement = 1;
         }
 
-        if (maxMovement === 0) break; // early exit if stable
+        if (maxMovement === 0) break;
       }
     }
+
   }
 
   // Generate seamless clones
