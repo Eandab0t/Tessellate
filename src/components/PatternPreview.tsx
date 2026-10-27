@@ -1,11 +1,13 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { PatternAsset, PatternSettings, PlacedInstance } from '../types';
-import { calculatePatternLayout, buildSvgString } from '../utils/patternMath';
+// ── Use new modular pipeline (spatial hash enabled by default) ──
+import { generatePattern } from "../utils/patternMath";
+import { buildSvgString } from '../utils/patternMath';
 import {
   Download, Eye, Image as ImageIcon, FileJson, ZoomIn, ZoomOut,
   RefreshCcw, Grid, Check, Sparkles, AlertCircle
@@ -25,16 +27,15 @@ export default function PatternPreview({ assets, settings }: PatternPreviewProps
 
   const previewContainerRef = useRef<HTMLDivElement>(null);
 
-  // Layout only depends on assets and pattern settings, NOT on gridMultiplier
+  // Layout computed from assets + settings using new pipeline (spatial-hash by default)
   const { instances, layoutError } = useMemo(() => {
     if (assets.length === 0) return { instances: [] as PlacedInstance[], layoutError: null as string | null };
     try {
-      return { instances: calculatePatternLayout(assets, settings), layoutError: null };
-    } catch {
-      return {
-        instances: [] as PlacedInstance[],
-        layoutError: 'Error generating layout. Check asset details or density.',
-      };
+      // PipelineOptions: collisionStrategy defaults to 'spatial-hash' in core.ts
+      return { instances: generatePattern(assets, settings), layoutError: null };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Error generating layout. Check asset details or density.';
+      return { instances: [] as PlacedInstance[], layoutError: message };
     }
   }, [assets, settings]);
 
@@ -42,7 +43,7 @@ export default function PatternPreview({ assets, settings }: PatternPreviewProps
     setErrorMsg(layoutError);
   }, [layoutError]);
 
-  // SVG string depends on instances + gridMultiplier, computed separately
+  // SVG string depends on instances + gridMultiplier
   const svgString = useMemo<string>(() => {
     if (instances.length === 0) return '';
     return buildSvgString(assets, instances, settings, gridMultiplier);

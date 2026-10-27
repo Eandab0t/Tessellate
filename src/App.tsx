@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @license
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -9,7 +9,6 @@ import { DEFAULT_ASSETS } from './utils/defaultAssets';
 import AssetManager from './components/AssetManager';
 import ControlPanel from './components/ControlPanel';
 import PatternPreview from './components/PatternPreview';
-import HowItWorks from './components/HowItWorks';
 import { Wand2, Info } from 'lucide-react';
 
 const INITIAL_SETTINGS: PatternSettings = {
@@ -134,7 +133,6 @@ export default function App() {
           <ControlPanel settings={settings} setSettings={setSettings} setAssets={setAssets} />
 
           {/* Technical guide on seamless wrap cloning */}
-          <HowItWorks />
 
         </section>
 

@@ -402,3 +402,8 @@ export function buildSvgString(
   svg += `</svg>`;
   return svg;
 }
+
+// Alias: generatePattern → calculatePatternLayout (for PatternPreview compatibility)
+export function generatePattern(assets: PatternAsset[], settings: PatternSettings): PlacedInstance[] {
+  return calculatePatternLayout(assets, settings);
+}
