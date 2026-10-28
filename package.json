@@ -9,8 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "lint": "tsc --noEmit",
-    "build:offline": "OFFLINE_BUILD=1 vite build"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
