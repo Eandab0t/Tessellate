@@ -1,26 +1,13 @@
-// src/utils/exportPatterns.ts
 import { PatternAsset, PatternSettings, PlacedInstance } from '../types';
+import { buildSvgString } from './patternMath';
 
 export interface ExportResult {
   success: boolean;
   message?: string;
 }
 
-interface BuildSvgArgs {
-  svgBuilder: (
-    assets: PatternAsset[],
-    instances: PlacedInstance[],
-    settings: PatternSettings,
-    multiplier: number,
-  ) => string;
-  assets: PatternAsset[];
-  instances: PlacedInstance[];
-  settings: PatternSettings;
-  multiplier?: number;
-}
-
-const MAX_PNG_DIMENSION = 8192;
 const PNG_SCALE = 2.5;
+const MAX_PNG_DIMENSION = 8192;
 
 function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
@@ -30,120 +17,147 @@ function downloadBlob(blob: Blob, filename: string): void {
   link.rel = 'noopener';
   document.body.appendChild(link);
   link.click();
-  document.body.removeChild(link);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('Failed to decode SVG image.'));
-    img.src = src;
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('The pattern could not be rasterised.'));
+    image.src = src;
   });
 }
 
-function svgBlob(svg: string): Blob {
-  return new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+function svgBuilder(
+  assets: PatternAsset[],
+  instances: PlacedInstance[],
+  settings: PatternSettings,
+  multiplier: number,
+): string {
+  return buildSvgString(assets, instances, settings, multiplier);
 }
 
-export async function downloadSvgTile({
-  svgBuilder,
-  assets,
-  instances,
-  settings,
-}: BuildSvgArgs): Promise<ExportResult> {
+function downloadSvg(
+  assets: PatternAsset[],
+  instances: PlacedInstance[],
+  settings: PatternSettings,
+  multiplier: number,
+  filename: string,
+): ExportResult {
   try {
-    const svg = svgBuilder(assets, instances, settings, 1);
-    downloadBlob(svgBlob(svg), `seamless-pattern-tile-${settings.seed}.svg`);
+    const svg = svgBuilder(assets, instances, settings, multiplier);
+    downloadBlob(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }), filename);
     return { success: true };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : 'Failed to download SVG tile.',
+      message: error instanceof Error ? error.message : 'The SVG could not be written.',
     };
   }
 }
 
-export async function downloadFullSvg({
-  svgBuilder,
-  assets,
-  instances,
-  settings,
-  multiplier,
-}: BuildSvgArgs): Promise<ExportResult> {
-  const m = Math.max(1, Math.floor(multiplier ?? 4));
-  try {
-    const svg = svgBuilder(assets, instances, settings, m);
-    downloadBlob(svgBlob(svg), `seamless-pattern-${m}x${m}-${settings.seed}.svg`);
-    return { success: true };
-  } catch (err) {
-    return {
-      success: false,
-      message: err instanceof Error ? err.message : 'Failed to download grid SVG.',
-    };
-  }
+export function downloadSvgTile(
+  assets: PatternAsset[],
+  instances: PlacedInstance[],
+  settings: PatternSettings,
+): ExportResult {
+  return downloadSvg(assets, instances, settings, 1, `tessellate-tile-${settings.seed}.svg`);
 }
 
-export async function downloadPngTile({
-  svgBuilder,
-  assets,
-  instances,
-  settings,
-}: BuildSvgArgs): Promise<ExportResult> {
+export function downloadFullSvg(
+  assets: PatternAsset[],
+  instances: PlacedInstance[],
+  settings: PatternSettings,
+  multiplier: number,
+): ExportResult {
+  const repeat = Math.max(1, Math.floor(multiplier));
+  return downloadSvg(
+    assets,
+    instances,
+    settings,
+    repeat,
+    `tessellate-${repeat}x${repeat}-${settings.seed}.svg`,
+  );
+}
+
+export async function downloadPng(
+  assets: PatternAsset[],
+  instances: PlacedInstance[],
+  settings: PatternSettings,
+): Promise<ExportResult> {
   const width = Math.round(settings.tileWidth * PNG_SCALE);
   const height = Math.round(settings.tileHeight * PNG_SCALE);
+
   if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
-    return { success: false, message: 'Invalid PNG export dimensions.' };
+    return { success: false, message: 'The tile size is not valid.' };
   }
   if (width > MAX_PNG_DIMENSION || height > MAX_PNG_DIMENSION) {
     return {
       success: false,
-      message: `PNG export exceeds the ${MAX_PNG_DIMENSION}px limit (${width}×${height}).`,
+      message: `PNG is limited to ${MAX_PNG_DIMENSION}px (this tile would be ${width}×${height}).`,
     };
   }
+
   let svgUrl: string | null = null;
   try {
     const svg = svgBuilder(assets, instances, settings, 1);
-    svgUrl = URL.createObjectURL(svgBlob(svg));
-    const img = await loadImage(svgUrl);
+    svgUrl = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }));
+    const image = await loadImage(svgUrl);
+
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Canvas 2D context unavailable.');
-    ctx.clearRect(0, 0, width, height);
-    ctx.drawImage(img, 0, 0, width, height);
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('This browser cannot render a canvas.');
+    context.drawImage(image, 0, 0, width, height);
+
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(
-        (b) => (b ? resolve(b) : reject(new Error('Failed to encode PNG.'))),
+        (result) => (result ? resolve(result) : reject(new Error('The PNG could not be encoded.'))),
         'image/png',
       );
     });
-    downloadBlob(blob, `seamless-tile-${settings.seed}.png`);
+
+    downloadBlob(blob, `tessellate-tile-${settings.seed}.png`);
     return { success: true };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : 'Failed to render PNG.',
+      message: error instanceof Error ? error.message : 'The PNG could not be rendered.',
     };
   } finally {
     if (svgUrl) URL.revokeObjectURL(svgUrl);
   }
 }
 
-export async function downloadJsonSettings(settings: PatternSettings): Promise<ExportResult> {
+export function downloadSettingsJson(settings: PatternSettings): ExportResult {
   try {
     const json = JSON.stringify(settings, null, 2);
     downloadBlob(
       new Blob([json], { type: 'application/json' }),
-      `pattern-settings-seed-${settings.seed}.json`,
+      `tessellate-settings-${settings.seed}.json`,
     );
     return { success: true };
-  } catch (err) {
+  } catch (error) {
     return {
       success: false,
-      message: err instanceof Error ? err.message : 'Failed to export settings JSON.',
+      message: error instanceof Error ? error.message : 'The settings could not be written.',
     };
   }
+}
+
+export async function readSettingsJson(file: File): Promise<PatternSettings> {
+  const text = await file.text();
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error('That file is not valid JSON.');
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('That file does not contain pattern settings.');
+  }
+  return parsed as PatternSettings;
 }

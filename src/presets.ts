@@ -1,4 +1,4 @@
-// src/presets.ts
+import { DEFAULT_ASSETS } from './utils/defaultAssets';
 import { PatternAsset, PatternSettings } from './types';
 
 export interface Preset {
@@ -11,7 +11,7 @@ export interface Preset {
 export const PRESETS: Preset[] = [
   {
     name: 'spooky',
-    label: '👻 SPOOKY RED',
+    label: '👻 Spooky red',
     settings: {
       mode: 'grid',
       gridCols: 4,
@@ -32,7 +32,7 @@ export const PRESETS: Preset[] = [
   },
   {
     name: 'floral',
-    label: '🌸 PASTEL SAGE',
+    label: '🌸 Pastel sage',
     settings: {
       mode: 'grid',
       gridCols: 4,
@@ -54,7 +54,7 @@ export const PRESETS: Preset[] = [
   },
   {
     name: 'memphis',
-    label: '✨ RETRO MEMPHIS',
+    label: '✨ Retro memphis',
     settings: {
       mode: 'organic',
       positioning: 'grid_snap',
@@ -77,27 +77,17 @@ export const PRESETS: Preset[] = [
   },
 ];
 
-let presetAssetCounter = 0;
-
-export function getPresetAssets(
-  defaultAssets: PatternAsset[],
-  presetName: string,
-): PatternAsset[] {
-  const preset = PRESETS.find((p) => p.name === presetName);
-  if (!preset) return [];
-  return defaultAssets
-    .filter((a) => preset.assetIds.includes(a.id))
-    .map((a) => {
-      presetAssetCounter += 1;
-      return { ...a, id: `${presetName}-theme-asset-${presetAssetCounter}` };
-    });
+/** Settings for a preset, applied on top of the current ones. */
+export function presetSettings(name: string, current: PatternSettings): PatternSettings {
+  const preset = PRESETS.find((candidate) => candidate.name === name);
+  return preset ? { ...current, ...preset.settings } : current;
 }
 
-export function applyPresetSettings(
-  current: PatternSettings,
-  presetName: string,
-): Partial<PatternSettings> {
-  const preset = PRESETS.find((p) => p.name === presetName);
-  if (!preset) return {};
-  return { ...current, ...preset.settings } as PatternSettings;
+/** The default motifs a preset needs, in a stable order. */
+export function presetAssets(name: string): PatternAsset[] {
+  const preset = PRESETS.find((candidate) => candidate.name === name);
+  if (!preset) return [];
+  return preset.assetIds
+    .map((id) => DEFAULT_ASSETS.find((asset) => asset.id === id))
+    .filter((asset): asset is PatternAsset => Boolean(asset));
 }

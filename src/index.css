@@ -1,12 +1,66 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --color-ink: #0a0b0d;
+  --color-panel: #121317;
+  --color-panel-2: #17181d;
+  --color-line: #26282e;
+  --color-line-2: #353841;
+  --color-muted: #8b8d98;
+  --color-accent: #f5b544;
+  --color-accent-2: #ffd27a;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 }
 
-.custom-scrollbar { scrollbar-width: thin; scrollbar-color: #2D2F36 #121317; }
-.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: #121317; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #2D2F36; border-radius: 3px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-ink);
+  color: #d4d4d8;
+}
+
+::selection {
+  background: rgb(245 181 68 / 0.25);
+  color: #fff;
+}
+
+input[type="range"] {
+  accent-color: var(--color-accent);
+}
+
+/* Thin, unobtrusive scrollbars everywhere. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-2) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-2);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+/* Keep the numeric fields tidy. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

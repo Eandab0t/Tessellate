@@ -1,15 +1,13 @@
-﻿/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState } from 'react';
+﻿import { useCallback, useState } from 'react';
 import { PatternAsset, PatternSettings } from './types';
 import { DEFAULT_ASSETS } from './utils/defaultAssets';
-import AssetManager from './components/AssetManager';
-import ControlPanel from './components/ControlPanel';
-import PatternPreview from './components/PatternPreview';
-import { Wand2, Info } from 'lucide-react';
+import { presetAssets, presetSettings } from './presets';
+import AssetPanel from './components/AssetPanel';
+import PreviewPanel from './components/PreviewPanel';
+import SettingsPanel from './components/SettingsPanel';
+import { RefreshCcw, Wand2 } from 'lucide-react';
+
+const STARTER_ASSETS: PatternAsset[] = DEFAULT_ASSETS.slice(0, 3);
 
 const INITIAL_SETTINGS: PatternSettings = {
   mode: 'organic',
@@ -19,7 +17,7 @@ const INITIAL_SETTINGS: PatternSettings = {
   aspectRatio: '1:1',
   gridCols: 4,
   gridRows: 4,
-  
+
   minScale: 0.4,
   maxScale: 1.1,
   scaleMode: 'random',
@@ -31,141 +29,144 @@ const INITIAL_SETTINGS: PatternSettings = {
   fixedRotation: 0,
 
   minOpacity: 0.7,
-  maxOpacity: 1.0,
+  maxOpacity: 1,
   opacityMode: 'fixed',
-  fixedOpacity: 1.0,
+  fixedOpacity: 1,
 
   seamlessCorrection: true,
-  edgeBleed: 1.0,
+  edgeBleed: 1,
   collisionAvoidance: true,
   collisionThreshold: 1.2,
-  
-  // Advanced Grid defaults
+
   gridType: 'standard',
   gridJitter: 0,
   gridOffset: 50,
   gridFlipAlternating: false,
-  
+
   seed: 142,
   density: 1.25,
-  backgroundColor: '#16171B', // Dark technical color matching the theme
-  showTileBorder: true
+  backgroundColor: '#16171B',
+  showTileBorder: true,
 };
 
-export default function App() {
-  // We preload first 3 beautiful starter assets to showcase the pattern flawlessly on first load
-  const [assets, setAssets] = useState<PatternAsset[]>([
-    DEFAULT_ASSETS[0], // sparkle
-    DEFAULT_ASSETS[1], // flower
-    DEFAULT_ASSETS[2], // leaf
-  ]);
+const newId = () => `motif-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
+const cloneAssets = (assets: PatternAsset[]) => assets.map((asset) => ({ ...asset }));
+
+export default function App() {
+  const [assets, setAssets] = useState<PatternAsset[]>(() => cloneAssets(STARTER_ASSETS));
   const [settings, setSettings] = useState<PatternSettings>(INITIAL_SETTINGS);
 
-  const resetToFactory = () => {
-    setAssets([DEFAULT_ASSETS[0], DEFAULT_ASSETS[1], DEFAULT_ASSETS[2]]);
+  const patchSettings = useCallback((patch: Partial<PatternSettings>) => {
+    setSettings((previous) => ({ ...previous, ...patch }));
+  }, []);
+
+  const addMissing = (incoming: PatternAsset[]) => {
+    setAssets((previous) => {
+      const names = new Set(previous.map((asset) => asset.name));
+      const missing = incoming
+        .filter((asset) => !names.has(asset.name))
+        .map((asset) => ({ ...asset, id: newId(), isDefault: false }));
+      return missing.length ? [...previous, ...missing] : previous;
+    });
+  };
+
+  const useAllMotifs = () => {
+    addMissing(DEFAULT_ASSETS);
+    setSettings((previous) => ({ ...previous, mode: 'organic', density: 1.5 }));
+  };
+
+  const applyPreset = (name: string) => {
+    setSettings((previous) => presetSettings(name, previous));
+    addMissing(presetAssets(name));
+  };
+
+  const reset = () => {
+    setAssets(cloneAssets(STARTER_ASSETS));
     setSettings(INITIAL_SETTINGS);
   };
 
-  const loadAllDefaultPresets = () => {
-    setAssets([...DEFAULT_ASSETS]);
-    setSettings(prev => ({
-      ...prev,
-      mode: 'organic',
-      density: 1.5,
-    }));
-  };
-
   return (
-    <div className="min-h-screen bg-[#0F1012] text-[#D1D5DB] font-sans antialiased flex flex-col selection:bg-amber-500/20 selection:text-amber-500">
-      
-      {/* Decorative amber system boundary line */}
-      <div className="h-0.5 bg-amber-500 shrink-0" />
+    <div className="flex min-h-screen flex-col bg-ink text-zinc-300">
+      <div className="h-0.5 shrink-0 bg-accent" />
 
-      {/* Main App Navigation Header */}
-      <header className="bg-[#16171B] border-b border-[#2D2F36] px-6 py-4 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          
+      <header className="sticky top-0 z-40 border-b border-line bg-panel/95 backdrop-blur">
+        <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-6">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-amber-500 rounded flex items-center justify-center font-bold text-black font-sans shadow-amber-500/10 shadow-lg shrink-0">
+            <div className="grid h-9 w-9 place-items-center rounded-lg bg-accent text-base font-black text-black">
               T
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold tracking-widest uppercase text-white">Tessellate</h1>
-                <span className="px-2 py-0.5 rounded bg-[#2D2F36] text-[10px] text-amber-500 font-mono font-medium">PATTERN STUDIO</span>
+                <h1 className="text-sm font-bold uppercase tracking-[0.18em] text-white">
+                  Tessellate
+                </h1>
+                <span className="rounded border border-line bg-ink px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-accent">
+                  Pattern studio
+                </span>
               </div>
-              <p className="text-[11px] text-gray-500 font-mono mt-0.5">DESIGN AND EXPORT SEAMLESS REPEATING PATTERNS</p>
+              <p className="mt-0.5 font-mono text-[10px] text-muted">
+                Seamless repeating patterns · runs offline
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
-              onClick={loadAllDefaultPresets}
-              className="text-xs font-bold px-3 py-1.5 text-amber-500 bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 rounded-md transition-all cursor-pointer flex items-center gap-1.5"
-              title="Add all native presets to create a complex organic tile"
+              type="button"
+              onClick={useAllMotifs}
+              className="flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-accent transition hover:bg-accent/20"
+              title="Add every built-in motif and switch to a dense scatter"
             >
-              <Wand2 className="w-3.5 h-3.5" />
-              <span>USE ALL PRESETS</span>
+              <Wand2 className="h-3.5 w-3.5" />
+              All motifs
             </button>
             <button
-              onClick={resetToFactory}
-              className="text-xs font-bold px-3 py-1.5 text-gray-400 bg-[#2D2F36] hover:bg-[#3D3F46] hover:text-white rounded-md transition-all cursor-pointer border border-transparent"
+              type="button"
+              onClick={reset}
+              className="flex items-center gap-1.5 rounded-md border border-line bg-ink px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-zinc-400 transition hover:border-line-2 hover:text-white"
               title="Restore the starter motifs and default settings"
             >
-              RESET
+              <RefreshCcw className="h-3.5 w-3.5" />
+              Reset
             </button>
           </div>
-
         </div>
       </header>
 
-      {/* Main Workspace Frame */}
-      <main className="grow px-6 py-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* Left column: Assets list, Grid dials, guides */}
-        <section className="lg:col-span-5 space-y-6">
-          
-          {/* Asset manager section */}
-          <AssetManager assets={assets} setAssets={setAssets} />
+      <main className="mx-auto grid w-full max-w-[1680px] flex-1 grid-cols-1 items-start gap-4 px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
+        <div className="min-w-0">
+          <AssetPanel assets={assets} setAssets={setAssets} />
+        </div>
 
-          {/* Configuration Settings Box */}
-          <ControlPanel settings={settings} setSettings={setSettings} setAssets={setAssets} />
+        <div className="min-w-0 xl:sticky xl:top-[76px]">
+          <PreviewPanel
+            assets={assets}
+            settings={settings}
+            onLoadSettings={(loaded) => setSettings((previous) => ({ ...previous, ...loaded }))}
+          />
+        </div>
 
-          {/* Technical guide on seamless wrap cloning */}
-
-        </section>
-
-        {/* Right column: Sticky visualizer & exporters */}
-        <section className="lg:col-span-7 lg:sticky lg:top-24 space-y-6">
-          
-          {/* Preview panel */}
-          <PatternPreview assets={assets} settings={settings} />
-
-          {/* Quick tips notice */}
-          <div className="p-4 bg-[#1A1B1F] rounded-xl border border-[#2D2F36] text-xs text-gray-400 flex gap-2.5">
-            <Info className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-white">READY TO USE:</p>
-              <p className="mt-1 leading-relaxed">
-                Use the exported <strong className="text-amber-500">SVG tile</strong> as a repeating background or bring it into your design tool. Your uploaded images stay in this browser and are embedded in the export.
-              </p>
-            </div>
-          </div>
-
-        </section>
-
+        <div className="min-w-0">
+          <SettingsPanel settings={settings} onChange={patchSettings} onPreset={applyPreset} />
+        </div>
       </main>
 
-      {/* Dynamic Grid System Info Bar */}
-      <footer className="h-10 border-t border-[#2D2F36] bg-[#0A0B0E] flex items-center justify-between px-6 text-[10px] text-gray-500 font-mono mt-auto shrink-0">
-        <div className="flex space-x-6">
-          <span>TESSELLATE <span className="text-gray-300">PATTERN STUDIO</span></span>
-          <span><span className="text-[#34d399] font-semibold">● READY</span></span>
-        </div>
-        <div className="hidden md:flex space-x-6">
-          <span>MOTIFS: <span className="text-amber-500">{assets.length}</span></span>
-          <span>SEED: <span className="text-amber-500">0x{settings.seed.toString(16).toUpperCase()}</span></span>
+      <footer className="shrink-0 border-t border-line bg-panel">
+        <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-2 px-4 py-2.5 font-mono text-[10px] text-muted lg:px-6">
+          <div className="flex flex-wrap items-center gap-4">
+            <span className="text-emerald-400">● ready</span>
+            <span>
+              {assets.length} motif{assets.length === 1 ? '' : 's'}
+            </span>
+            <span>
+              tile {settings.tileWidth} × {settings.tileHeight}
+            </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <span>seed 0x{settings.seed.toString(16).toUpperCase()}</span>
+            <span className="hidden sm:inline">single file · no install</span>
+          </div>
         </div>
       </footer>
     </div>
