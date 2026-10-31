@@ -1,17 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #0a0b0d;
-  --color-panel: #121317;
-  --color-panel-2: #17181d;
-  --color-line: #26282e;
-  --color-line-2: #353841;
-  --color-muted: #8b8d98;
-  --color-accent: #f5b544;
-  --color-accent-2: #ffd27a;
+  --color-paper: #f4f2ed;
+  --color-card: #ffffff;
+  --color-ink: #1c1a22;
+  --color-muted: #6f6c7a;
+  --color-faint: #a4a1ae;
+  --color-line: #e7e4dc;
+  --color-line-2: #d7d3c8;
+  --color-accent: #6d5ae8;
+  --color-accent-2: #8f7bf2;
+  --color-accent-soft: #efecfe;
 
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, ui-serif, serif;
   --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+
+  --shadow-card: 0 1px 2px rgb(28 26 34 / 0.04), 0 10px 30px -12px rgb(28 26 34 / 0.12);
+  --shadow-pop: 0 2px 4px rgb(28 26 34 / 0.05), 0 18px 44px -12px rgb(28 26 34 / 0.22);
+  --shadow-chip: 0 1px 2px rgb(28 26 34 / 0.06), 0 6px 16px -6px rgb(28 26 34 / 0.14);
 }
 
 html,
@@ -21,20 +28,97 @@ body,
 }
 
 body {
-  background: var(--color-ink);
-  color: #d4d4d8;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgb(245 181 68 / 0.25);
-  color: #fff;
+  background: rgb(109 90 232 / 0.18);
 }
 
+/* The studio canvas: warm paper with a fine dot grid. */
+.canvas-dots {
+  background-color: var(--color-paper);
+  background-image: radial-gradient(rgb(28 26 34 / 0.06) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+
+/* Sliders: thin track, white thumb with an accent ring. */
 input[type="range"] {
-  accent-color: var(--color-accent);
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  cursor: pointer;
 }
 
-/* Thin, unobtrusive scrollbars everywhere. */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-line-2);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -6px;
+  height: 16px;
+  width: 16px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 1px 4px rgb(28 26 34 / 0.25);
+  transition: transform 0.12s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-line-2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 999px;
+  background: #fff;
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 1px 4px rgb(28 26 34 / 0.25);
+}
+
+/* Colour picker: just the swatch, no chrome. */
+input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: 1px solid var(--color-line-2);
+  border-radius: 10px;
+}
+
+/* Keep numeric fields tidy. */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Thin, quiet scrollbars. */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-line-2) transparent;
@@ -52,15 +136,14 @@ input[type="range"] {
 *::-webkit-scrollbar-thumb {
   background: var(--color-line-2);
   border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+.no-scrollbar {
+  scrollbar-width: none;
 }
 
-/* Keep the numeric fields tidy. */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }

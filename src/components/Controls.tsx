@@ -4,45 +4,22 @@ import React from 'react';
 /* Layout primitives                                                   */
 /* ------------------------------------------------------------------ */
 
-interface PanelProps {
-  title: string;
-  subtitle?: string;
-  icon?: React.ReactNode;
-  action?: React.ReactNode;
-  className?: string;
-  children: React.ReactNode;
-}
-
-export function Panel({ title, subtitle, icon, action, className = '', children }: PanelProps) {
-  return (
-    <section className={`rounded-xl border border-line bg-panel ${className}`}>
-      <header className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
-        <div className="flex min-w-0 items-start gap-2.5">
-          {icon ? <span className="mt-0.5 shrink-0 text-accent">{icon}</span> : null}
-          <div className="min-w-0">
-            <h2 className="text-[11px] font-bold uppercase tracking-[0.16em] text-white">{title}</h2>
-            {subtitle ? (
-              <p className="mt-0.5 font-mono text-[10px] text-muted">{subtitle}</p>
-            ) : null}
-          </div>
-        </div>
-        {action ? <div className="shrink-0">{action}</div> : null}
-      </header>
-      <div className="space-y-4 p-4">{children}</div>
-    </section>
-  );
-}
-
 interface GroupProps {
   title: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }
 
-export function Group({ title, children, className = '' }: GroupProps) {
+export function Group({ title, action, children, className = '' }: GroupProps) {
   return (
-    <div className={`space-y-3 border-t border-line pt-4 first:border-t-0 first:pt-0 ${className}`}>
-      <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">{title}</h3>
+    <div className={`space-y-3 ${className}`}>
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
+          {title}
+        </h3>
+        {action}
+      </div>
       {children}
     </div>
   );
@@ -77,9 +54,9 @@ export function Slider({
 }: SliderProps) {
   return (
     <label className={`block space-y-1 ${disabled ? 'pointer-events-none opacity-40' : ''}`}>
-      <span className="flex items-baseline justify-between gap-2 text-[11px]">
+      <span className="flex items-baseline justify-between gap-2 text-xs">
         <span className="text-muted">{label}</span>
-        <span className="font-mono font-semibold text-accent">{display ?? value}</span>
+        <span className="font-mono text-[11px] font-semibold text-accent">{display ?? value}</span>
       </span>
       <input
         type="range"
@@ -89,9 +66,8 @@ export function Slider({
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="w-full"
       />
-      {hint ? <span className="block font-mono text-[10px] leading-tight text-zinc-500">{hint}</span> : null}
+      {hint ? <span className="block text-[11px] leading-snug text-faint">{hint}</span> : null}
     </label>
   );
 }
@@ -115,7 +91,7 @@ export function Segmented<T extends string>({
   className = '',
 }: SegmentedProps<T>) {
   return (
-    <div className={`flex gap-0.5 rounded-lg border border-line bg-ink/60 p-0.5 ${className}`}>
+    <div className={`flex gap-1 rounded-xl bg-paper p-1 ${className}`}>
       {options.map((option) => {
         const active = option.value === value;
         return (
@@ -124,8 +100,8 @@ export function Segmented<T extends string>({
             type="button"
             onClick={() => onChange(option.value)}
             aria-pressed={active}
-            className={`flex-1 rounded-md px-2 py-1 font-mono text-[10px] uppercase tracking-wide transition ${
-              active ? 'bg-accent font-bold text-black' : 'text-muted hover:text-white'
+            className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition ${
+              active ? 'bg-card text-ink shadow-chip' : 'text-muted hover:text-ink'
             }`}
           >
             {option.label}
@@ -147,9 +123,9 @@ export function Toggle({ label, hint, checked, onChange }: ToggleProps) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="min-w-0">
-        <span className="block text-[11px] font-semibold text-zinc-200">{label}</span>
+        <span className="block text-xs font-semibold text-ink">{label}</span>
         {hint ? (
-          <span className="mt-0.5 block font-mono text-[10px] leading-tight text-zinc-500">{hint}</span>
+          <span className="mt-0.5 block text-[11px] leading-snug text-faint">{hint}</span>
         ) : null}
       </span>
       <button
@@ -158,13 +134,13 @@ export function Toggle({ label, hint, checked, onChange }: ToggleProps) {
         aria-checked={checked}
         aria-label={label}
         onClick={() => onChange(!checked)}
-        className={`relative h-5 w-9 shrink-0 rounded-full border transition-colors ${
-          checked ? 'border-accent bg-accent' : 'border-line-2 bg-ink'
+        className={`relative h-[22px] w-10 shrink-0 rounded-full transition-colors ${
+          checked ? 'bg-accent' : 'bg-line-2'
         }`}
       >
         <span
-          className={`absolute top-0.5 h-3.5 w-3.5 rounded-full transition-all ${
-            checked ? 'left-[18px] bg-black' : 'left-0.5 bg-zinc-400'
+          className={`absolute top-[3px] h-4 w-4 rounded-full bg-white shadow-chip transition-all ${
+            checked ? 'left-[21px]' : 'left-[3px]'
           }`}
         />
       </button>
@@ -193,7 +169,9 @@ export function NumberField({
 }: NumberFieldProps) {
   return (
     <label className="block space-y-1">
-      <span className="block text-[10px] font-bold uppercase tracking-wide text-muted">{label}</span>
+      <span className="block text-[10px] font-semibold uppercase tracking-wide text-faint">
+        {label}
+      </span>
       <div className="relative">
         <input
           type="number"
@@ -207,10 +185,10 @@ export function NumberField({
             const parsed = Number(raw);
             if (Number.isFinite(parsed)) onChange(parsed);
           }}
-          className="w-full rounded-md border border-line bg-ink px-2 py-1.5 text-center font-mono text-xs text-accent outline-none transition focus:border-accent/60 disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-40"
+          className="w-full rounded-xl border border-line bg-paper/60 px-2.5 py-2 text-center font-mono text-xs font-semibold text-ink outline-none transition placeholder:text-faint focus:border-accent/60 focus:bg-card focus:ring-2 focus:ring-accent/15 disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-40"
         />
         {suffix ? (
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 font-mono text-[10px] text-zinc-500">
+          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 font-mono text-[10px] text-faint">
             {suffix}
           </span>
         ) : null}
@@ -235,10 +213,10 @@ export function ChoiceButton({ active, onClick, children, title, className = '' 
       onClick={onClick}
       title={title}
       aria-pressed={active}
-      className={`rounded-md border px-2 py-1.5 font-mono text-[10px] uppercase tracking-wide transition ${
+      className={`rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition ${
         active
-          ? 'border-accent bg-accent font-bold text-black'
-          : 'border-line bg-ink/60 text-muted hover:border-line-2 hover:text-white'
+          ? 'border-accent bg-accent-soft text-accent'
+          : 'border-line bg-card text-muted hover:border-line-2 hover:text-ink'
       } ${className}`}
     >
       {children}

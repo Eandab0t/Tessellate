@@ -2,10 +2,9 @@
 import { PatternAsset, PatternSettings } from './types';
 import { DEFAULT_ASSETS } from './utils/defaultAssets';
 import { presetAssets, presetSettings } from './presets';
-import AssetPanel from './components/AssetPanel';
+import Inspector from './components/Inspector';
 import PreviewPanel from './components/PreviewPanel';
-import SettingsPanel from './components/SettingsPanel';
-import { RefreshCcw, Wand2 } from 'lucide-react';
+import TopBar from './components/TopBar';
 
 const STARTER_ASSETS: PatternAsset[] = DEFAULT_ASSETS.slice(0, 3);
 
@@ -56,6 +55,7 @@ const cloneAssets = (assets: PatternAsset[]) => assets.map((asset) => ({ ...asse
 export default function App() {
   const [assets, setAssets] = useState<PatternAsset[]>(() => cloneAssets(STARTER_ASSETS));
   const [settings, setSettings] = useState<PatternSettings>(INITIAL_SETTINGS);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
 
   const patchSettings = useCallback((patch: Partial<PatternSettings>) => {
     setSettings((previous) => ({ ...previous, ...patch }));
@@ -87,88 +87,31 @@ export default function App() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-ink text-zinc-300">
-      <div className="h-0.5 shrink-0 bg-accent" />
+    <div className="flex min-h-dvh flex-col bg-paper text-ink lg:h-dvh lg:overflow-hidden">
+      <TopBar
+        onPreset={applyPreset}
+        onAllMotifs={useAllMotifs}
+        onReset={reset}
+        onToggleInspector={() => setInspectorOpen((open) => !open)}
+      />
 
-      <header className="sticky top-0 z-40 border-b border-line bg-panel/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-3 px-4 py-3 lg:px-6">
-          <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-lg bg-accent text-base font-black text-black">
-              T
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-sm font-bold uppercase tracking-[0.18em] text-white">
-                  Tessellate
-                </h1>
-                <span className="rounded border border-line bg-ink px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-accent">
-                  Pattern studio
-                </span>
-              </div>
-              <p className="mt-0.5 font-mono text-[10px] text-muted">
-                Seamless repeating patterns · runs offline
-              </p>
-            </div>
-          </div>
+      <main className="relative min-h-[72dvh] flex-1 lg:min-h-0">
+        <PreviewPanel
+          assets={assets}
+          settings={settings}
+          onLoadSettings={(loaded) => setSettings((previous) => ({ ...previous, ...loaded }))}
+          onTune={() => setInspectorOpen(true)}
+        />
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={useAllMotifs}
-              className="flex items-center gap-1.5 rounded-md border border-accent/40 bg-accent/10 px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-accent transition hover:bg-accent/20"
-              title="Add every built-in motif and switch to a dense scatter"
-            >
-              <Wand2 className="h-3.5 w-3.5" />
-              All motifs
-            </button>
-            <button
-              type="button"
-              onClick={reset}
-              className="flex items-center gap-1.5 rounded-md border border-line bg-ink px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wide text-zinc-400 transition hover:border-line-2 hover:text-white"
-              title="Restore the starter motifs and default settings"
-            >
-              <RefreshCcw className="h-3.5 w-3.5" />
-              Reset
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto grid w-full max-w-[1680px] flex-1 grid-cols-1 items-start gap-4 px-4 py-4 lg:px-6 xl:grid-cols-[300px_minmax(0,1fr)_360px]">
-        <div className="min-w-0">
-          <AssetPanel assets={assets} setAssets={setAssets} />
-        </div>
-
-        <div className="min-w-0 xl:sticky xl:top-[76px]">
-          <PreviewPanel
-            assets={assets}
-            settings={settings}
-            onLoadSettings={(loaded) => setSettings((previous) => ({ ...previous, ...loaded }))}
-          />
-        </div>
-
-        <div className="min-w-0">
-          <SettingsPanel settings={settings} onChange={patchSettings} onPreset={applyPreset} />
-        </div>
+        <Inspector
+          assets={assets}
+          setAssets={setAssets}
+          settings={settings}
+          onChange={patchSettings}
+          open={inspectorOpen}
+          onClose={() => setInspectorOpen(false)}
+        />
       </main>
-
-      <footer className="shrink-0 border-t border-line bg-panel">
-        <div className="mx-auto flex w-full max-w-[1680px] flex-wrap items-center justify-between gap-2 px-4 py-2.5 font-mono text-[10px] text-muted lg:px-6">
-          <div className="flex flex-wrap items-center gap-4">
-            <span className="text-emerald-400">● ready</span>
-            <span>
-              {assets.length} motif{assets.length === 1 ? '' : 's'}
-            </span>
-            <span>
-              tile {settings.tileWidth} × {settings.tileHeight}
-            </span>
-          </div>
-          <div className="flex flex-wrap items-center gap-4">
-            <span>seed 0x{settings.seed.toString(16).toUpperCase()}</span>
-            <span className="hidden sm:inline">single file · no install</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
