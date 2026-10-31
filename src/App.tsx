@@ -44,7 +44,7 @@ const INITIAL_SETTINGS: PatternSettings = {
 
   seed: 142,
   density: 1.25,
-  backgroundColor: '#16171B',
+  backgroundColor: '#000000',
   showTileBorder: true,
 };
 
@@ -87,7 +87,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col bg-paper text-ink lg:h-dvh lg:overflow-hidden">
+    <div className="flex min-h-dvh flex-col bg-black text-text lg:h-dvh lg:overflow-hidden">
       <TopBar
         onPreset={applyPreset}
         onAllMotifs={useAllMotifs}

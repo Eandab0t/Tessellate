@@ -26,13 +26,13 @@ export default function Inspector({ assets, setAssets, settings, onChange, open,
 
   return (
     <aside
-      className={`absolute inset-y-3 right-3 z-30 w-[min(92vw,348px)] max-lg:rounded-2xl lg:inset-y-4 lg:right-4 lg:w-[352px] ${
+      className={`absolute inset-y-4 right-4 z-30 w-[min(92vw,360px)] lg:rounded-3xl lg:flex ${
         open ? 'flex' : 'hidden'
-      } lg:flex`}
+      }`}
     >
       <div className="flex w-full flex-col overflow-hidden rounded-3xl border border-line bg-card shadow-pop">
-        <div className="flex items-center gap-1.5 border-b border-line px-3 py-2.5">
-          <div className="grid flex-1 grid-cols-3 gap-1 rounded-xl bg-paper p-1">
+        <div className="flex items-center gap-1.5 border-b border-line px-5 py-4">
+          <div className="grid flex-1 grid-cols-3 gap-2 rounded-xl bg-card-2 p-1">
             {TABS.map(({ id, label, Icon }) => {
               const active = tab === id;
               return (
@@ -41,11 +41,11 @@ export default function Inspector({ assets, setAssets, settings, onChange, open,
                   type="button"
                   onClick={() => setTab(id)}
                   aria-pressed={active}
-                  className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-semibold transition ${
-                    active ? 'bg-card text-ink shadow-chip' : 'text-muted hover:text-ink'
+                  className={`flex items-center justify-center gap-1.5 rounded-lg py-1.5 text-[11px] font-bold transition ${
+                    active ? 'bg-accent text-black shadow-chip' : 'text-muted hover:text-text'
                   }`}
                 >
-                  <Icon className={`h-3.5 w-3.5 ${active ? 'text-accent' : ''}`} />
+                  <Icon className={`h-3.5 w-3.5 ${active ? 'text-black' : ''}`} />
                   {label}
                 </button>
               );
@@ -54,14 +54,14 @@ export default function Inspector({ assets, setAssets, settings, onChange, open,
           <button
             type="button"
             onClick={onClose}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-faint transition hover:bg-paper hover:text-ink lg:hidden"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-muted transition hover:bg-card-2 hover:text-text lg:hidden"
             title="Close the inspector"
           >
             <X className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="flex-1 overflow-y-auto p-5">
           {tab === 'motifs' ? <AssetPanel assets={assets} setAssets={setAssets} /> : null}
           {tab === 'canvas' ? (
             <SettingsPanel section="canvas" settings={settings} onChange={onChange} />

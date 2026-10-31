@@ -1,24 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --color-paper: #f4f2ed;
-  --color-card: #ffffff;
-  --color-ink: #1c1a22;
-  --color-muted: #6f6c7a;
-  --color-faint: #a4a1ae;
-  --color-line: #e7e4dc;
-  --color-line-2: #d7d3c8;
-  --color-accent: #6d5ae8;
-  --color-accent-2: #8f7bf2;
-  --color-accent-soft: #efecfe;
+  /* Brand color extracted from EanTessellate.webp logo -> bright red #f00000 */
+  --color-bg: #000000;
+  --color-card: #0a0a0a;
+  --color-card-2: #111111;
+  --color-line: #1a1a1a;
+  --color-line-2: #262626;
+  --color-muted: #71717b;
+  --color-faint: #505055;
+  --color-accent: #f00000;
+  --color-accent-2: #ff4d4d;
+  --color-accent-soft: rgba(240, 0, 0, 0.10);
+  --color-accent-strong: #a21515;
+  --color-text: #ffffff;
+  --color-text-dim: #e8e8ea;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, ui-serif, serif;
   --font-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
 
-  --shadow-card: 0 1px 2px rgb(28 26 34 / 0.04), 0 10px 30px -12px rgb(28 26 34 / 0.12);
-  --shadow-pop: 0 2px 4px rgb(28 26 34 / 0.05), 0 18px 44px -12px rgb(28 26 34 / 0.22);
-  --shadow-chip: 0 1px 2px rgb(28 26 34 / 0.06), 0 6px 16px -6px rgb(28 26 34 / 0.14);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 10px 30px -12px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 2px 4px rgb(0 0 0 / 0.4), 0 20px 44px -12px rgb(0 0 0 / 0.55);
+  --shadow-chip: 0 1px 2px rgb(0 0 0 / 0.5), 0 6px 16px -6px rgb(0 0 0 / 0.5);
 }
 
 html,
@@ -28,24 +32,18 @@ body,
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: rgb(109 90 232 / 0.18);
+  background: rgb(240 0 0 / 0.25);
+  color: #fff;
 }
 
-/* The studio canvas: warm paper with a fine dot grid. */
-.canvas-dots {
-  background-color: var(--color-paper);
-  background-image: radial-gradient(rgb(28 26 34 / 0.06) 1px, transparent 1.2px);
-  background-size: 22px 22px;
-}
-
-/* Sliders: thin track, white thumb with an accent ring. */
+/* Sliders: thin track, white thumb with red ring. */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -69,7 +67,7 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 999px;
   background: #fff;
   border: 2px solid var(--color-accent);
-  box-shadow: 0 1px 4px rgb(28 26 34 / 0.25);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.55);
   transition: transform 0.12s ease;
 }
 
@@ -89,7 +87,7 @@ input[type="range"]::-moz-range-thumb {
   border-radius: 999px;
   background: #fff;
   border: 2px solid var(--color-accent);
-  box-shadow: 0 1px 4px rgb(28 26 34 / 0.25);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.55);
 }
 
 /* Colour picker: just the swatch, no chrome. */
@@ -111,14 +109,14 @@ input[type="color"]::-webkit-color-swatch {
   border-radius: 10px;
 }
 
-/* Keep numeric fields tidy. */
+/* Numeric fields tidy. */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* Thin, quiet scrollbars. */
+/* Quiet scrollbars. */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-line-2) transparent;
@@ -140,10 +138,26 @@ input[type="number"]::-webkit-inner-spin-button {
   background-clip: content-box;
 }
 
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
 .no-scrollbar {
   scrollbar-width: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Reveal utilities */
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
 }

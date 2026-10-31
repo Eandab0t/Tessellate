@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { PatternAsset } from '../types';
 import { DEFAULT_ASSETS } from '../utils/defaultAssets';
-import { Group } from './Controls';
+import { Card, Group } from './Controls';
 import { ArrowDown, ArrowUp, Upload, X } from 'lucide-react';
 
 interface AssetPanelProps {
@@ -101,38 +101,39 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <Group
-        title={`Built-in library · ${DEFAULT_ASSETS.length}`}
+    <div className="space-y-4">
+      <Card
+        title="Built-in library"
+        subtitle={`${DEFAULT_ASSETS.length} included motifs`}
         action={
           <button
             type="button"
             onClick={addAllMotifs}
-            className="text-[11px] font-semibold text-accent transition hover:underline"
+            className="text-[11px] font-bold text-accent transition hover:underline"
           >
             Add all
           </button>
         }
       >
-        <div className="grid grid-cols-2 gap-1.5">
+        <div className="grid grid-cols-2 gap-2">
           {DEFAULT_ASSETS.map((motif) => (
             <button
               key={motif.id}
               type="button"
               onClick={() => addMotif(motif)}
               title={`Add ${motif.name}`}
-              className="group flex items-center gap-2 rounded-xl border border-line bg-card p-1.5 pr-2 text-left transition hover:border-accent/50 hover:shadow-chip"
+              className="group flex items-center gap-2 rounded-xl border border-line bg-card-2 p-1.5 pr-2 text-left transition hover:border-accent/40 hover:bg-accent-soft"
             >
-              <span className="h-7 w-7 shrink-0 rounded-lg bg-paper p-1 ring-1 ring-line">
+              <span className="h-7 w-7 shrink-0 rounded-lg bg-card p-1 ring-1 ring-line">
                 <img src={motif.dataUrl} alt="" className="h-full w-full object-contain" />
               </span>
-              <span className="truncate text-[11px] font-medium text-muted transition group-hover:text-ink">
+              <span className="truncate text-[11px] font-medium text-text transition group-hover:text-accent">
                 {motif.name.replace(/\.svg$/i, '')}
               </span>
             </button>
           ))}
         </div>
-      </Group>
+      </Card>
 
       <div
         role="button"
@@ -151,10 +152,10 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
           setDragging(false);
           if (event.dataTransfer.files.length) void addFiles(event.dataTransfer.files);
         }}
-        className={`cursor-pointer rounded-2xl border-2 border-dashed p-5 text-center transition ${
+        className={`cursor-pointer rounded-2xl border-2 border-dashed p-6 text-center transition ${
           dragging
-            ? 'border-accent bg-accent-soft/60'
-            : 'border-line-2 bg-paper/50 hover:border-accent/50 hover:bg-accent-soft/30'
+            ? 'border-accent bg-accent-soft/40'
+            : 'border-line bg-card-2 hover:border-accent/40 hover:bg-accent-soft/20'
         }`}
       >
         <input
@@ -168,44 +169,45 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
             event.target.value = '';
           }}
         />
-        <Upload className="mx-auto mb-1.5 h-5 w-5 text-faint" />
-        <p className="text-xs font-semibold text-ink">Drop images here</p>
+        <Upload className="mx-auto mb-2 h-5 w-5 text-muted" />
+        <p className="text-xs font-bold text-text">Drop images here</p>
         <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-faint">
           SVG · PNG · JPG · WebP · GIF — 8 MB max
         </p>
       </div>
 
       {error ? (
-        <p className="rounded-xl bg-rose-50 px-3 py-2 text-[11px] font-medium text-rose-600">
+        <p className="rounded-xl bg-red-900/20 border border-red-900/40 px-3 py-2 text-[11px] font-medium text-red-400">
           {error}
         </p>
       ) : null}
 
       {assets.length > 0 ? (
-        <Group
-          title={`Your motifs · ${assets.length}`}
+        <Card
+          title="Your motifs"
+          subtitle={`${assets.length} · order sets the cycle order`}
           action={
             <button
               type="button"
               onClick={() => setAssets([])}
-              className="text-[11px] font-semibold text-rose-500 transition hover:underline"
+              className="text-[11px] font-bold text-red-400 transition hover:underline"
             >
               Clear
             </button>
           }
         >
-          <ul className="space-y-1.5">
+          <ul className="space-y-2">
             {assets.map((asset, index) => (
               <li
                 key={asset.id}
-                className="group flex items-center justify-between gap-2 rounded-xl border border-line bg-card p-1.5 transition hover:border-accent/40"
+                className="group flex items-center justify-between gap-2 rounded-xl border border-line bg-card-2 p-1.5 transition hover:border-accent/40"
               >
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="h-9 w-9 shrink-0 rounded-lg bg-paper p-1 ring-1 ring-line">
+                  <span className="h-9 w-9 shrink-0 rounded-lg bg-card p-1 ring-1 ring-line">
                     <img src={asset.dataUrl} alt="" className="h-full w-full object-contain" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate text-xs font-semibold text-ink">
+                    <span className="block truncate text-xs font-semibold text-text">
                       {asset.name}
                     </span>
                     <span className="block text-[10px] font-medium uppercase tracking-wide text-faint">
@@ -220,7 +222,7 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
                     onClick={() => move(index, -1)}
                     disabled={index === 0}
                     title="Move up"
-                    className="rounded-md p-1 text-faint transition hover:bg-paper hover:text-ink disabled:opacity-30"
+                    className="rounded-md p-1 text-muted transition hover:bg-card hover:text-text disabled:opacity-30"
                   >
                     <ArrowUp className="h-3 w-3" />
                   </button>
@@ -229,7 +231,7 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
                     onClick={() => move(index, 1)}
                     disabled={index === assets.length - 1}
                     title="Move down"
-                    className="rounded-md p-1 text-faint transition hover:bg-paper hover:text-ink disabled:opacity-30"
+                    className="rounded-md p-1 text-muted transition hover:bg-card hover:text-text disabled:opacity-30"
                   >
                     <ArrowDown className="h-3 w-3" />
                   </button>
@@ -237,7 +239,7 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
                     type="button"
                     onClick={() => setAssets((previous) => previous.filter((item) => item.id !== asset.id))}
                     title="Remove"
-                    className="rounded-md p-1 text-faint transition hover:bg-rose-50 hover:text-rose-500"
+                    className="rounded-md p-1 text-muted transition hover:bg-red-900/20 hover:text-red-400"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
@@ -245,8 +247,7 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
               </li>
             ))}
           </ul>
-          <p className="text-[11px] text-faint">Order sets the cycle order in Cycle mode.</p>
-        </Group>
+        </Card>
       ) : null}
     </div>
   );

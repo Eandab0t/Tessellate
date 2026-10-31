@@ -4,22 +4,53 @@ import React from 'react';
 /* Layout primitives                                                   */
 /* ------------------------------------------------------------------ */
 
+interface CardProps {
+  title?: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}
+
+export function Card({ title, subtitle, icon, action, className = '', children }: CardProps) {
+  return (
+    <section className={`rounded-2xl border border-line bg-card shadow-card ${className}`}>
+      {title || subtitle || icon || action ? (
+        <header className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
+          <div className="flex min-w-0 items-start gap-2.5">
+            {icon ? <span className="mt-0.5 shrink-0 text-accent">{icon}</span> : null}
+            <div className="min-w-0">
+              {title ? (
+                <h3 className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted">
+                  {title}
+                </h3>
+              ) : null}
+              {subtitle ? (
+                <p className="mt-0.5 font-mono text-[10px] text-faint">{subtitle}</p>
+              ) : null}
+            </div>
+          </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </header>
+      ) : null}
+      <div className="space-y-4 p-5">{children}</div>
+    </section>
+  );
+}
+
 interface GroupProps {
   title: string;
-  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }
 
-export function Group({ title, action, children, className = '' }: GroupProps) {
+export function Group({ title, children, className = '' }: GroupProps) {
   return (
-    <div className={`space-y-3 ${className}`}>
-      <div className="flex items-center justify-between gap-2">
-        <h3 className="font-mono text-[10px] font-semibold uppercase tracking-[0.14em] text-faint">
-          {title}
-        </h3>
-        {action}
-      </div>
+    <div className={`space-y-3 border-t border-line pt-4 first:border-t-0 first:pt-0 ${className}`}>
+      <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-accent">
+        {title}
+      </h3>
       {children}
     </div>
   );
@@ -91,7 +122,7 @@ export function Segmented<T extends string>({
   className = '',
 }: SegmentedProps<T>) {
   return (
-    <div className={`flex gap-1 rounded-xl bg-paper p-1 ${className}`}>
+    <div className={`flex gap-1 rounded-xl border border-line bg-card-2 p-1 ${className}`}>
       {options.map((option) => {
         const active = option.value === value;
         return (
@@ -101,7 +132,9 @@ export function Segmented<T extends string>({
             onClick={() => onChange(option.value)}
             aria-pressed={active}
             className={`flex-1 rounded-lg px-2 py-1.5 text-[11px] font-semibold transition ${
-              active ? 'bg-card text-ink shadow-chip' : 'text-muted hover:text-ink'
+              active
+                ? 'bg-accent text-black shadow-chip'
+                : 'text-muted hover:text-text hover:border-line-2'
             }`}
           >
             {option.label}
@@ -123,7 +156,7 @@ export function Toggle({ label, hint, checked, onChange }: ToggleProps) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="min-w-0">
-        <span className="block text-xs font-semibold text-ink">{label}</span>
+        <span className="block text-xs font-semibold text-text">{label}</span>
         {hint ? (
           <span className="mt-0.5 block text-[11px] leading-snug text-faint">{hint}</span>
         ) : null}
@@ -139,7 +172,7 @@ export function Toggle({ label, hint, checked, onChange }: ToggleProps) {
         }`}
       >
         <span
-          className={`absolute top-[3px] h-4 w-4 rounded-full bg-white shadow-chip transition-all ${
+          className={`absolute top-[3px] h-4 w-4 rounded-full bg-black shadow-chip transition-all ${
             checked ? 'left-[21px]' : 'left-[3px]'
           }`}
         />
@@ -185,7 +218,7 @@ export function NumberField({
             const parsed = Number(raw);
             if (Number.isFinite(parsed)) onChange(parsed);
           }}
-          className="w-full rounded-xl border border-line bg-paper/60 px-2.5 py-2 text-center font-mono text-xs font-semibold text-ink outline-none transition placeholder:text-faint focus:border-accent/60 focus:bg-card focus:ring-2 focus:ring-accent/15 disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-40"
+          className="w-full rounded-xl border border-line bg-card-2 px-2.5 py-2 text-center font-mono text-xs font-semibold text-text outline-none transition placeholder:text-faint focus:border-accent/60 focus:bg-card focus:ring-2 focus:ring-accent/20 disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-40"
         />
         {suffix ? (
           <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 font-mono text-[10px] text-faint">
@@ -216,7 +249,7 @@ export function ChoiceButton({ active, onClick, children, title, className = '' 
       className={`rounded-full border px-2.5 py-1.5 text-[11px] font-semibold transition ${
         active
           ? 'border-accent bg-accent-soft text-accent'
-          : 'border-line bg-card text-muted hover:border-line-2 hover:text-ink'
+          : 'border-line-2 bg-card-2 text-muted hover:border-line hover:text-text'
       } ${className}`}
     >
       {children}

@@ -1,6 +1,6 @@
 import { PatternSettings } from '../types';
 import { ChoiceButton, Group, NumberField, Segmented, Slider, Toggle, clamp } from './Controls';
-import { LayoutGrid, RefreshCw, Repeat, Sparkles } from 'lucide-react';
+import { LayoutGrid, RefreshCcw, Repeat, Sparkles } from 'lucide-react';
 
 interface SettingsPanelProps {
   section: 'canvas' | 'style';
@@ -37,21 +37,19 @@ const GRID_TYPES: ReadonlyArray<{ value: PatternSettings['gridType']; label: str
 ];
 
 const BG_PRESETS = [
+  '#000000',
+  '#0a0a0a',
+  '#111111',
+  '#1a1a1a',
+  '#262626',
+  '#f00000',
+  '#a21515',
+  '#ff4d4d',
+  '#f17171',
+  '#F4F2ED',
   '#16171B',
   '#0F1012',
   '#1E293B',
-  '#0B132B',
-  '#022C22',
-  '#311042',
-  '#1C1917',
-  '#2E1000',
-  '#F4F2ED',
-  '#E6F0EB',
-  '#FDF2F8',
-  '#FEF9C3',
-  '#E0E7FF',
-  '#FFE4E6',
-  '#DCFCE7',
   '#FFFFFF',
 ] as const;
 
@@ -115,19 +113,19 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
 
   if (section === 'canvas') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Group title="Arrangement">
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-3 gap-2">
             {MODES.map(({ value, label, hint, Icon }) => (
               <button
                 key={value}
                 type="button"
                 onClick={() => onChange({ mode: value })}
                 aria-pressed={settings.mode === value}
-                className={`rounded-xl border p-2 text-left transition ${
+                className={`rounded-xl border p-3 text-left transition ${
                   settings.mode === value
-                    ? 'border-accent bg-accent-soft'
-                    : 'border-line bg-card hover:border-line-2'
+                    ? 'border-accent bg-accent-soft text-accent'
+                    : 'border-line-2 bg-card-2 text-muted hover:border-line hover:text-text'
                 }`}
               >
                 <Icon
@@ -135,7 +133,7 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
                     settings.mode === value ? 'text-accent' : 'text-faint'
                   }`}
                 />
-                <span className="block text-[11px] font-bold text-ink">{label}</span>
+                <span className="block text-[11px] font-bold text-text">{label}</span>
                 <span className="block text-[9px] font-medium uppercase tracking-wide text-faint">
                   {hint}
                 </span>
@@ -158,7 +156,7 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
         </Group>
 
         <Group title="Tile size">
-          <div className="grid grid-cols-3 gap-1.5">
+          <div className="grid grid-cols-3 gap-2">
             {(['1:1', '16:9', '4:3', '3:2', '2:1', 'custom'] as const).map((ratio) => (
               <ChoiceButton
                 key={ratio}
@@ -170,7 +168,7 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <NumberField
               label="Width"
               value={settings.tileWidth}
@@ -190,20 +188,20 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
             />
           </div>
 
-          <div className="grid grid-cols-4 gap-1.5">
+          <div className="grid grid-cols-4 gap-2">
             {CANVAS_PRESETS.map((preset) => (
               <button
                 key={preset.size}
                 type="button"
                 onClick={() => setCanvasWidth(preset.size)}
-                className={`rounded-lg border px-1 py-1.5 text-center transition ${
+                className={`rounded-xl border px-2 py-2 text-center transition ${
                   settings.tileWidth === preset.size
                     ? 'border-accent bg-accent-soft text-accent'
-                    : 'border-line bg-card text-muted hover:border-line-2 hover:text-ink'
+                    : 'border-line-2 bg-card-2 text-muted hover:border-line hover:text-text'
                 }`}
               >
                 <span className="block font-mono text-[10px] font-semibold">{preset.size}</span>
-                <span className="block text-[8px] font-semibold uppercase tracking-wide opacity-70">
+                <span className="block text-[8px] font-semibold uppercase tracking-wide opacity-60">
                   {preset.label}
                 </span>
               </button>
@@ -230,7 +228,7 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
               />
             </div>
 
-            <div className="grid grid-cols-5 gap-1">
+            <div className="grid grid-cols-5 gap-2">
               {GRID_TYPES.map((type) => (
                 <ChoiceButton
                   key={type.value}
@@ -312,7 +310,7 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Group title="Scale">
         <Segmented
           value={settings.scaleMode}
@@ -465,7 +463,7 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
             type="color"
             value={settings.backgroundColor}
             onChange={(event) => onChange({ backgroundColor: event.target.value })}
-            className="h-9 w-12 shrink-0 rounded-lg"
+            className="h-10 w-14 shrink-0 rounded-lg"
             title="Pick a background colour"
           />
           <input
@@ -477,20 +475,20 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
                 onChange({ backgroundColor: value });
               }
             }}
-            placeholder="#F4F2ED"
-            className="w-full rounded-xl border border-line bg-paper/60 px-2.5 py-2 text-center font-mono text-xs font-semibold text-ink outline-none transition focus:border-accent/60 focus:bg-card focus:ring-2 focus:ring-accent/15"
+            placeholder="#000000"
+            className="w-full rounded-xl border border-line bg-card-2 px-2.5 py-2 text-center font-mono text-xs font-semibold text-text outline-none transition focus:border-accent/60 focus:bg-card focus:ring-2 focus:ring-accent/20"
           />
         </div>
-        <div className="grid grid-cols-8 gap-1">
+        <div className="grid grid-cols-8 gap-2">
           {BG_PRESETS.map((colour) => (
             <button
               key={colour}
               type="button"
               onClick={() => onChange({ backgroundColor: colour })}
-              className={`h-6 rounded-lg border transition ${
+              className={`h-7 rounded-lg border transition ${
                 settings.backgroundColor.toLowerCase() === colour.toLowerCase()
                   ? 'border-accent ring-2 ring-accent ring-offset-1'
-                  : 'border-line-2/60 hover:border-line-2'
+                  : 'border-line-2/60 hover:border-line hover:bg-accent-soft/40'
               }`}
               style={{ backgroundColor: colour }}
               title={colour}
@@ -517,10 +515,10 @@ export default function SettingsPanel({ section, settings, onChange }: SettingsP
           <button
             type="button"
             onClick={() => onChange({ seed: Math.floor(Math.random() * 100000) })}
-            className="flex h-[38px] items-center gap-1.5 rounded-xl border border-line bg-card px-3 text-[11px] font-semibold text-accent transition hover:border-accent/60"
+            className="flex h-[40px] items-center gap-1.5 rounded-xl border border-line bg-card px-3 text-[11px] font-bold text-accent transition hover:border-accent/60"
             title="Pick a new random seed"
           >
-            <RefreshCw className="h-3 w-3" />
+            <RefreshCcw className="h-3 w-3" />
             New
           </button>
         </div>

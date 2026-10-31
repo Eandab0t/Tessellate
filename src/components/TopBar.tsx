@@ -1,5 +1,7 @@
 import { PRESETS } from '../presets';
-import { RefreshCcw, SlidersHorizontal, Sparkles, Wand2 } from 'lucide-react';
+import { RefreshCcw, SlidersHorizontal, Sparkles } from 'lucide-react';
+
+const LOGO = `data:image/webp;base64,UklGRpYMAABXRUJQVlA4TIoMAAAv58P5EBUPggBIgvj/dQHqgYhQ4LaNMjoc7xXYwIoRCklsIC32D4AAGB8AB8AABUAVII8waYACAC9A2VAAyABA/QAg1AEoAB4DDxABwADAQH/Q0ZNINIAA==`;
 
 interface TopBarProps {
   onPreset: (name: string) => void;
@@ -14,7 +16,7 @@ export default function TopBar({ onPreset, onAllMotifs, onReset, onToggleInspect
       key={preset.name}
       type="button"
       onClick={() => onPreset(preset.name)}
-      className="shrink-0 rounded-full border border-line bg-card px-3.5 py-1.5 text-xs font-medium text-muted transition hover:border-accent hover:bg-accent-soft hover:text-accent"
+      className="shrink-0 rounded-full border border-line bg-card-2 px-3.5 py-1.5 text-xs font-medium text-muted transition hover:border-accent hover:bg-accent-soft hover:text-accent"
       title={`Apply the ${preset.label} preset`}
     >
       {preset.label}
@@ -22,14 +24,18 @@ export default function TopBar({ onPreset, onAllMotifs, onReset, onToggleInspect
   ));
 
   return (
-    <header className="relative z-40 shrink-0 border-b border-line bg-card/90 backdrop-blur">
-      <div className="flex items-center justify-between gap-3 px-4 py-3 lg:px-6">
-        <div className="flex items-center gap-2.5">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-[linear-gradient(135deg,#6d5ae8,#c85ae8)] text-white shadow-chip">
-            <Sparkles className="h-4 w-4" />
-          </div>
+    <header className="relative z-40 shrink-0 border-b border-line bg-card/80 backdrop-blur">
+      <div className="flex items-center justify-between gap-3 px-5 py-4 lg:px-6">
+        <div className="flex items-center gap-3">
+          <img
+            src={LOGO}
+            alt=""
+            className="h-10 w-10 shrink-0 rounded-lg"
+            loading="eager"
+            decoding="async"
+          />
           <div>
-            <h1 className="font-display text-lg font-semibold leading-none tracking-tight text-ink">
+            <h1 className="font-display text-lg font-bold leading-none tracking-tight text-text">
               Tessellate
             </h1>
             <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.16em] text-faint">
@@ -46,16 +52,16 @@ export default function TopBar({ onPreset, onAllMotifs, onReset, onToggleInspect
           <button
             type="button"
             onClick={onAllMotifs}
-            className="flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold text-white shadow-chip transition hover:bg-accent-2"
+            className="flex items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-bold text-black shadow-chip transition hover:bg-accent-2"
             title="Add every built-in motif and switch to a dense scatter"
           >
-            <Wand2 className="h-3.5 w-3.5" />
+            <Sparkles className="h-3.5 w-3.5" />
             All motifs
           </button>
           <button
             type="button"
             onClick={onReset}
-            className="flex items-center gap-1.5 rounded-full border border-line bg-card px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:border-line-2 hover:text-ink"
+            className="flex items-center gap-1.5 rounded-full border border-line bg-card px-3.5 py-1.5 text-xs font-semibold text-muted transition hover:border-line hover:text-text"
             title="Restore the starter motifs and default settings"
           >
             <RefreshCcw className="h-3.5 w-3.5" />
@@ -64,7 +70,7 @@ export default function TopBar({ onPreset, onAllMotifs, onReset, onToggleInspect
           <button
             type="button"
             onClick={onToggleInspector}
-            className="grid h-8 w-8 place-items-center rounded-full border border-line bg-card text-muted transition hover:border-line-2 hover:text-ink lg:hidden"
+            className="grid h-9 w-9 place-items-center rounded-full border border-line bg-card text-muted transition hover:border-line hover:text-text lg:hidden"
             title="Open the inspector"
           >
             <SlidersHorizontal className="h-4 w-4" />
@@ -72,7 +78,7 @@ export default function TopBar({ onPreset, onAllMotifs, onReset, onToggleInspect
         </div>
       </div>
 
-      <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto px-4 pb-2.5 md:hidden">
+      <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto px-5 pb-3 md:hidden">
         {presetPills}
       </div>
     </header>
