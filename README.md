@@ -1,44 +1,48 @@
-<div align="center">
-
 # Tessellate
 
-### Make seamless patterns. Keep it simple.
+![Tessellate logo](icon.webp)
 
-Choose motifs, tune the look, preview the repeat, and export a tile — all in your browser.
+**Tessellate** is a single-file, offline pattern studio. Turn motifs into seamless repeating tiles — export SVG or PNG, no install, no server, no internet required.
 
-[**⬇ Download Tessellate**](./package/Tessellate.html)
+Double-click **`Tessellate.html`** and start designing.
 
-**That’s the whole app:** download the single HTML file above and open it in a modern browser.
-No installer, server, or internet connection required.
+## Get it
 
-</div>
+**[Download `Tessellate.html` (282 KB, standalone)](https://github.com/Eandab0t/Tessellate/raw/main/package/Tessellate.html)**
+
+Save it anywhere — a USB stick, your desktop, a network drive — and open it in any modern browser. Everything runs client-side; uploaded images never leave your machine.
+
+## What it does
+
+| | |
+|---|---|
+| **Motif library** | 8 built-in motifs, plus drag-and-drop or browse uploads (SVG · PNG · JPG · WebP · GIF, up to 25 MB each). Large icons auto-scale to 512 px. |
+| **Layouts** | Grid, scatter, and cycle modes. Grid variations: align, half-drop, half-slide, diagonal, alternating flip. |
+| **Variation** | Scale, rotation, opacity — fixed or randomly ranged. Density, stagger offset, slack/jitter, collision avoidance, seamless edge wrap. |
+| **Canvas** | Tile sizes up to 3840×3840, locked aspect ratios (1:1, 16:9, 4:3, 3:2, 2:1), background colour, tile boundary overlay, reproducible seeds. |
+| **Preview** | Scrollable dotted studio, 1×1 → 4×4 repeat, 25% → 300% zoom, live bounds readout. |
+| **Export** | Single SVG tile, repeated-grid SVG, high-resolution PNG (2.5× scale), settings as JSON — and load JSON back in to resume. |
+
+## Dark card design
+
+The UI is built around the **EanTessellate brand** — black studio, bright red accents, card-based panels, dotted-grid canvas. Inspired by modern host-control panels.
+
+## Build it yourself
+
+```sh
+git clone https://github.com/Eandab0t/Tessellate.git
+cd Tessellate
+npm install
+npm run build   # -> package/Tessellate.html (single self-contained file)
+npm run lint    # TypeScript check
+```
+
+The pattern engine lives in `src/utils/patternMath.ts`; everything else was rebuilt around it.
+
+## License
+
+[MIT](LICENSE) — free to use, modify, and distribute.
 
 ---
 
-## Create a pattern
-
-1. **Pick motifs** — use the built-in artwork or add your own SVG, PNG, JPG, WebP, or GIF images
-   (up to 8 MB each).
-2. **Make it yours** — choose a preset or adjust the layout, tile size, and motif appearance.
-3. **Check the repeat** — preview the pattern before exporting.
-4. **Take it with you** — export a seamless SVG tile, a repeated SVG, or a PNG.
-
-Settings can also be saved to or loaded from JSON. Your uploaded images stay in your browser and
-are embedded in exports.
-
-## Build from source
-
-Requires Node.js 18 or newer.
-
-```sh
-npm install
-npm run dev
-```
-
-Open the local address printed by Vite. To regenerate `package/Tessellate.html`:
-
-```sh
-npm run build
-```
-
-Run `npm run lint` for a TypeScript check.
+<p align="center"><b>Tessellate</b> · seamless patterns, offline</p>
