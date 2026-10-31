@@ -9,7 +9,8 @@ interface AssetPanelProps {
   setAssets: React.Dispatch<React.SetStateAction<PatternAsset[]>>;
 }
 
-const MAX_FILE_BYTES = 8 * 1024 * 1024;
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+const MAX_ICON_DIM = 512;
 
 const newId = () => `motif-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -26,9 +27,36 @@ function measure(dataUrl: string): Promise<{ width: number; height: number }> {
   });
 }
 
+function autoscale(dataUrl: string, width: number, height: number): Promise<string> {
+  return new Promise((resolve) => {
+    if (width <= MAX_ICON_DIM && height <= MAX_ICON_DIM) {
+      resolve(dataUrl);
+      return;
+    }
+    const scale = Math.min(MAX_ICON_DIM / width, MAX_ICON_DIM / height);
+    const outW = Math.round(width * scale);
+    const outH = Math.round(height * scale);
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = outW;
+      canvas.height = outH;
+      const context = canvas.getContext('2d');
+      if (!context) {
+        resolve(dataUrl);
+        return;
+      }
+      context.drawImage(image, 0, 0, outW, outH);
+      resolve(canvas.toDataURL('image/webp', 0.92));
+    };
+    image.onerror = () => resolve(dataUrl);
+    image.src = dataUrl;
+  });
+}
+
 async function toAsset(file: File): Promise<PatternAsset> {
   if (file.size > MAX_FILE_BYTES) {
-    throw new Error(`${file.name} is larger than 8 MB.`);
+    throw new Error(`${file.name} is larger than 25 MB.`);
   }
 
   const dataUrl = await new Promise<string>((resolve, reject) => {
@@ -39,13 +67,14 @@ async function toAsset(file: File): Promise<PatternAsset> {
   });
 
   const { width, height } = await measure(dataUrl);
+  const scaled = await autoscale(dataUrl, width, height);
 
   return {
     id: newId(),
     name: file.name,
-    dataUrl,
-    width,
-    height,
+    dataUrl: scaled,
+    width: scaled === dataUrl ? width : Math.round(width * (MAX_ICON_DIM / Math.max(width, height))),
+    height: scaled === dataUrl ? height : Math.round(height * (MAX_ICON_DIM / Math.max(width, height))),
     type: file.type === 'image/svg+xml' ? 'svg' : 'raster',
   };
 }
@@ -172,7 +201,7 @@ export default function AssetPanel({ assets, setAssets }: AssetPanelProps) {
         <Upload className="mx-auto mb-2 h-5 w-5 text-muted" />
         <p className="text-xs font-bold text-text">Drop images here</p>
         <p className="mt-1 text-[10px] font-medium uppercase tracking-wide text-faint">
-          SVG · PNG · JPG · WebP · GIF — 8 MB max
+          SVG · PNG · JPG · WebP · GIF — 25 MB max
         </p>
       </div>
 
