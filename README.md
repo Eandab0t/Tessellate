@@ -1,7 +1,5 @@
 # Tessellate
 
-![Tessellate logo](icon.webp)
-
 **Tessellate** is a single-file, offline pattern studio. Turn motifs into seamless repeating tiles — export SVG or PNG, no install, no server, no internet required.
 
 Double-click **`Tessellate.html`** and start designing.
