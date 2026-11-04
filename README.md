@@ -10,7 +10,7 @@ Open **`Tessellate.html`** to get started.
 
 ## Get it
 
-**[Download `Tessellate.html` (282 KB, standalone)](https://github.com/Eandab0t/Tessellate/raw/main/package/Tessellate.html)**
+**[Download `Tessellate.html` (282 KB, standalone)](https://github.com/Eandab0t/Tessellate/blob/main/package/Tessellate.html)**
 
 Save it wherever you like — on your desktop, a USB stick, or a network drive — then open it in a modern browser. Tessellate runs on your device, so uploaded images stay on your machine.
 
