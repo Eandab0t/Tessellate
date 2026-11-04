@@ -2,30 +2,32 @@
 
 ![Tessellate logo](icon.webp)
 
-**Tessellate** is a single-file, offline pattern studio. Turn motifs into seamless repeating tiles — export SVG or PNG, no install, no server, no internet required.
+![Tessellate social preview](https://repository-images.githubusercontent.com/1421547659/88a9f98d-b5d4-4334-a39b-5752a12b6cda)
 
-Double-click **`Tessellate.html`** and start designing.
+**Tessellate** is a pattern maker you can run right in your browser. Arrange motifs into seamless repeating tiles, then export them as SVG or PNG. It’s a single file, so there’s nothing to install and no internet connection needed.
+
+Open **`Tessellate.html`** to get started.
 
 ## Get it
 
 **[Download `Tessellate.html` (282 KB, standalone)](https://github.com/Eandab0t/Tessellate/raw/main/package/Tessellate.html)**
 
-Save it anywhere — a USB stick, your desktop, a network drive — and open it in any modern browser. Everything runs client-side; uploaded images never leave your machine.
+Save it wherever you like — on your desktop, a USB stick, or a network drive — then open it in a modern browser. Tessellate runs on your device, so uploaded images stay on your machine.
 
 ## What it does
 
 | | |
 |---|---|
-| **Motif library** | 8 built-in motifs, plus drag-and-drop or browse uploads (SVG · PNG · JPG · WebP · GIF, up to 25 MB each). Large icons auto-scale to 512 px. |
-| **Layouts** | Grid, scatter, and cycle modes. Grid variations: align, half-drop, half-slide, diagonal, alternating flip. |
-| **Variation** | Scale, rotation, opacity — fixed or randomly ranged. Density, stagger offset, slack/jitter, collision avoidance, seamless edge wrap. |
-| **Canvas** | Tile sizes up to 3840×3840, locked aspect ratios (1:1, 16:9, 4:3, 3:2, 2:1), background colour, tile boundary overlay, reproducible seeds. |
-| **Preview** | Scrollable dotted studio, 1×1 → 4×4 repeat, 25% → 300% zoom, live bounds readout. |
-| **Export** | Single SVG tile, repeated-grid SVG, high-resolution PNG (2.5× scale), settings as JSON — and load JSON back in to resume. |
+| **Motif library** | Start with 8 built-in motifs, or add your own by dragging them in or browsing for files (SVG · PNG · JPG · WebP · GIF, up to 25 MB each). Large icons are scaled down to 512 px. |
+| **Layouts** | Choose grid, scatter, or cycle. Grid options include align, half-drop, half-slide, diagonal, and alternating flip. |
+| **Variation** | Adjust scale, rotation, and opacity, either directly or across a random range. You can also tune density, stagger, and jitter, avoid collisions, and wrap motifs across tile edges. |
+| **Canvas** | Make tiles up to 3840×3840, choose a locked aspect ratio (1:1, 16:9, 4:3, 3:2, or 2:1), set a background colour, and show tile boundaries. Seeds let you reproduce a layout. |
+| **Preview** | See your pattern on a scrollable dotted canvas, with repeat previews from 1×1 to 4×4, zoom from 25% to 300%, and live bounds. |
+| **Export** | Save a single tile or repeated grid as SVG, export a high-resolution PNG (2.5× scale), or save your settings as JSON and load them later. |
 
 ## Dark card design
 
-The UI is built around the **EanTessellate brand** — black studio, bright red accents, card-based panels, dotted-grid canvas. Inspired by modern host-control panels.
+The interface uses the **EanTessellate** look: a dark workspace, red accents, card-style panels, and a dotted canvas.
 
 ## Build it yourself
 
@@ -37,7 +39,7 @@ npm run build   # -> package/Tessellate.html (single self-contained file)
 npm run lint    # TypeScript check
 ```
 
-The pattern engine lives in `src/utils/patternMath.ts`; everything else was rebuilt around it.
+The pattern engine is in `src/utils/patternMath.ts`; the rest of the app is built around it.
 
 ## License
 
@@ -45,4 +47,4 @@ The pattern engine lives in `src/utils/patternMath.ts`; everything else was rebu
 
 ---
 
-<p align="center"><b>Tessellate</b> · seamless patterns, offline</p>
+<p align="center"><b>Tessellate</b> · make seamless patterns, anywhere</p>
