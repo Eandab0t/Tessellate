@@ -1,7 +1,3 @@
-# Tessellate
-
-![Tessellate logo](icon.webp)
-
 ![Tessellate social preview](https://repository-images.githubusercontent.com/1421547659/88a9f98d-b5d4-4334-a39b-5752a12b6cda)
 
 **Tessellate** is a pattern maker you can run right in your browser. Arrange motifs into seamless repeating tiles, then export them as SVG or PNG. It’s a single file, so there’s nothing to install and no internet connection needed.
