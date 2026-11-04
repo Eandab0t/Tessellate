@@ -6,7 +6,7 @@ Double-click **`Tessellate.html`** and start designing.
 
 ## Get it
 
-**[Download `Tessellate.html` (282 KB, standalone)](https://github.com/Eandab0t/Tessellate/raw/main/package/Tessellate.html)**
+**[Download `Tessellate.html` (282 KB, standalone)](https://github.com/Eandab0t/Tessellate/blob/main/package/Tessellate.html)**
 
 Save it anywhere — a USB stick, your desktop, a network drive — and open it in any modern browser. Everything runs client-side; uploaded images never leave your machine.
 
